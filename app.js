@@ -150,7 +150,7 @@ function renderTabs() {
 
   tabsContainer.innerHTML = '';
 
-  state.tabs.forEach((tab, index) => {
+  state.tabs.forEach((tab) => {
 
     const button = document.createElement('button');
 
@@ -161,12 +161,46 @@ function renderTabs() {
     }
 
     button.textContent = tab;
-
     button.setAttribute('draggable', 'true');
 
-    /* CLICK SWITCH TAB */
+    /* ---------- SWITCH TAB ---------- */
     button.addEventListener('click', () => {
       state.currentBoard = tab;
+      saveState();
+      renderTabs();
+      renderBoard();
+    });
+
+    /* ---------- RENAME TAB (DOUBLE CLICK) ---------- */
+    button.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+
+      const newName = prompt('Rename tab:', tab);
+      if (!newName) return;
+
+      const formatted = newName.toLowerCase().trim();
+
+      if (!formatted || formatted === tab) return;
+
+      if (state.tabs.includes(formatted)) {
+        alert('Tab already exists');
+        return;
+      }
+
+      // update tab list
+      state.tabs = state.tabs.map(t =>
+        t === tab ? formatted : t
+      );
+
+      // migrate board data
+      state.boards[formatted] = state.boards[tab] || [];
+      delete state.boards[tab];
+
+      // update active tab
+      if (state.currentBoard === tab) {
+        state.currentBoard = formatted;
+      }
+
       saveState();
       renderTabs();
       renderBoard();
@@ -192,6 +226,7 @@ function renderTabs() {
       button.classList.remove('drag-over');
     });
 
+    /* ---------- DROP REORDER ---------- */
     button.addEventListener('drop', (e) => {
 
       e.preventDefault();
