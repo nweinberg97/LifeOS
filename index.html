@@ -9,21 +9,19 @@
 <body>
 
   <header class="topbar">
-    <h1>Boardly</h1>
+    <h1 class="logo">Boardly</h1>
 
-    <div class="tabs">
-      <button class="tab active" data-board="health">Health</button>
-      <button class="tab" data-board="work">Work</button>
-      <button class="tab" data-board="finance">Finance</button>
-      <button class="tab" data-board="relationships">Relationships</button>
-      <button class="tab" data-board="ideas">Ideas</button>
-    </div>
+    <div class="tabs" id="tabs"></div>
   </header>
 
   <div class="toolbar">
-    <button id="add-goal">+ Goal</button>
-    <button id="add-task">+ Task</button>
-    <button id="add-note">+ Note</button>
+    <div class="toolbar-left">
+      <button id="add-goal">+ Goal</button>
+      <button id="add-task">+ Task</button>
+      <button id="add-note">+ Note</button>
+    </div>
+
+    <button id="add-tab">+ Tab</button>
   </div>
 
   <main id="board"></main>
