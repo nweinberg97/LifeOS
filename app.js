@@ -38,7 +38,7 @@ function getCurrentBoardData() {
   return state.boards[state.currentBoard];
 }
 
-/* ---------- RENDER BOARD ---------- */
+/* ---------- BOARD ---------- */
 
 function renderBoard() {
   board.innerHTML = '';
@@ -48,7 +48,7 @@ function renderBoard() {
   });
 }
 
-/* ---------- CREATE CARD ---------- */
+/* ---------- CARDS ---------- */
 
 function createCard(type) {
 
@@ -65,8 +65,6 @@ function createCard(type) {
   saveState();
   renderBoard();
 }
-
-/* ---------- CARD ELEMENT ---------- */
 
 function createCardElement(cardData) {
 
@@ -90,10 +88,7 @@ function createCardElement(cardData) {
 
   enableDragging(card, cardData);
 
-  /* RIGHT CLICK DELETE */
-
   card.addEventListener('contextmenu', (e) => {
-
     e.preventDefault();
 
     state.boards[state.currentBoard] =
@@ -106,7 +101,7 @@ function createCardElement(cardData) {
   board.appendChild(card);
 }
 
-/* ---------- DRAGGING ---------- */
+/* ---------- DRAG CARDS ---------- */
 
 function enableDragging(element, cardData) {
 
@@ -142,23 +137,20 @@ function enableDragging(element, cardData) {
 
   document.addEventListener('mouseup', () => {
 
-    if (isDragging) {
-      saveState();
-    }
+    if (isDragging) saveState();
 
     isDragging = false;
-
     element.style.zIndex = 1;
   });
 }
 
-/* ---------- RENDER TABS ---------- */
+/* ---------- TABS ---------- */
 
 function renderTabs() {
 
   tabsContainer.innerHTML = '';
 
-  state.tabs.forEach(tab => {
+  state.tabs.forEach((tab, index) => {
 
     const button = document.createElement('button');
 
@@ -170,14 +162,54 @@ function renderTabs() {
 
     button.textContent = tab;
 
+    button.setAttribute('draggable', 'true');
+
+    /* CLICK SWITCH TAB */
     button.addEventListener('click', () => {
-
       state.currentBoard = tab;
-
       saveState();
-
       renderTabs();
       renderBoard();
+    });
+
+    /* ---------- DRAG START ---------- */
+    button.addEventListener('dragstart', (e) => {
+      button.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', tab);
+    });
+
+    button.addEventListener('dragend', () => {
+      button.classList.remove('dragging');
+    });
+
+    /* ---------- DROP OVER ---------- */
+    button.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      button.classList.add('drag-over');
+    });
+
+    button.addEventListener('dragleave', () => {
+      button.classList.remove('drag-over');
+    });
+
+    button.addEventListener('drop', (e) => {
+
+      e.preventDefault();
+
+      button.classList.remove('drag-over');
+
+      const draggedTab = e.dataTransfer.getData('text/plain');
+
+      if (draggedTab === tab) return;
+
+      const fromIndex = state.tabs.indexOf(draggedTab);
+      const toIndex = state.tabs.indexOf(tab);
+
+      state.tabs.splice(fromIndex, 1);
+      state.tabs.splice(toIndex, 0, draggedTab);
+
+      saveState();
+      renderTabs();
     });
 
     tabsContainer.appendChild(button);
@@ -195,12 +227,9 @@ document.getElementById('add-tab')
   }
 
   const tabName = prompt('Enter tab name');
-
   if (!tabName) return;
 
-  const formatted = tabName
-    .toLowerCase()
-    .trim();
+  const formatted = tabName.toLowerCase().trim();
 
   if (state.tabs.includes(formatted)) {
     alert('Tab already exists');
@@ -208,11 +237,9 @@ document.getElementById('add-tab')
   }
 
   state.tabs.push(formatted);
-
   state.boards[formatted] = [];
 
   saveState();
-
   renderTabs();
 });
 
@@ -230,7 +257,6 @@ document.getElementById('add-note')
 /* ---------- INIT ---------- */
 
 function initializeBoardly() {
-
   renderTabs();
   renderBoard();
 }
