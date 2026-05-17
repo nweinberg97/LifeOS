@@ -1,35 +1,57 @@
 const board = document.getElementById('board');
+const tabsContainer = document.getElementById('tabs');
 
-const tabs = document.querySelectorAll('.tab');
+/* ---------- STATE ---------- */
 
-const state = JSON.parse(localStorage.getItem('lifeos-data')) || {
+const state = JSON.parse(localStorage.getItem('boardly-data')) || {
   currentBoard: 'health',
+
+  tabs: [
+    'health',
+    'admin',
+    'chores',
+    'learning',
+    'personal',
+    'relationships',
+    'passions'
+  ],
+
   boards: {}
 };
 
+/* ---------- SAVE ---------- */
+
 function saveState() {
-  localStorage.setItem('lifeos-data', JSON.stringify(state));
+  localStorage.setItem('boardly-data', JSON.stringify(state));
+}
+
+/* ---------- BOARDS ---------- */
+
+function ensureBoardExists(tab) {
+  if (!state.boards[tab]) {
+    state.boards[tab] = [];
+  }
 }
 
 function getCurrentBoardData() {
-  if (!state.boards[state.currentBoard]) {
-    state.boards[state.currentBoard] = [];
-  }
-
+  ensureBoardExists(state.currentBoard);
   return state.boards[state.currentBoard];
 }
+
+/* ---------- RENDER BOARD ---------- */
 
 function renderBoard() {
   board.innerHTML = '';
 
-  const cards = getCurrentBoardData();
-
-  cards.forEach(card => {
+  getCurrentBoardData().forEach(card => {
     createCardElement(card);
   });
 }
 
+/* ---------- CREATE CARD ---------- */
+
 function createCard(type) {
+
   const card = {
     id: Date.now(),
     type,
@@ -44,7 +66,10 @@ function createCard(type) {
   renderBoard();
 }
 
+/* ---------- CARD ELEMENT ---------- */
+
 function createCardElement(cardData) {
+
   const card = document.createElement('div');
 
   card.classList.add('card', cardData.type);
@@ -65,14 +90,14 @@ function createCardElement(cardData) {
 
   enableDragging(card, cardData);
 
+  /* RIGHT CLICK DELETE */
+
   card.addEventListener('contextmenu', (e) => {
+
     e.preventDefault();
 
-    const boardCards = getCurrentBoardData();
-
-    const updated = boardCards.filter(c => c.id !== cardData.id);
-
-    state.boards[state.currentBoard] = updated;
+    state.boards[state.currentBoard] =
+      getCurrentBoardData().filter(c => c.id !== cardData.id);
 
     saveState();
     renderBoard();
@@ -81,7 +106,10 @@ function createCardElement(cardData) {
   board.appendChild(card);
 }
 
+/* ---------- DRAGGING ---------- */
+
 function enableDragging(element, cardData) {
+
   let offsetX = 0;
   let offsetY = 0;
   let isDragging = false;
@@ -99,6 +127,7 @@ function enableDragging(element, cardData) {
   });
 
   document.addEventListener('mousemove', (e) => {
+
     if (!isDragging) return;
 
     const x = e.clientX - offsetX;
@@ -112,36 +141,98 @@ function enableDragging(element, cardData) {
   });
 
   document.addEventListener('mouseup', () => {
+
     if (isDragging) {
       saveState();
     }
 
     isDragging = false;
+
     element.style.zIndex = 1;
   });
 }
 
-document.getElementById('add-goal')
-  .addEventListener('click', () => createCard('goal'));
+/* ---------- RENDER TABS ---------- */
 
-document.getElementById('add-task')
-  .addEventListener('click', () => createCard('task'));
+function renderTabs() {
 
-document.getElementById('add-note')
-  .addEventListener('click', () => createCard('note'));
+  tabsContainer.innerHTML = '';
 
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
+  state.tabs.forEach(tab => {
 
-    tabs.forEach(t => t.classList.remove('active'));
+    const button = document.createElement('button');
 
-    tab.classList.add('active');
+    button.classList.add('tab');
 
-    state.currentBoard = tab.dataset.board;
+    if (tab === state.currentBoard) {
+      button.classList.add('active');
+    }
 
-    saveState();
-    renderBoard();
+    button.textContent = tab;
+
+    button.addEventListener('click', () => {
+
+      state.currentBoard = tab;
+
+      saveState();
+
+      renderTabs();
+      renderBoard();
+    });
+
+    tabsContainer.appendChild(button);
   });
+}
+
+/* ---------- ADD TAB ---------- */
+
+document.getElementById('add-tab')
+.addEventListener('click', () => {
+
+  if (state.tabs.length >= 10) {
+    alert('Maximum 10 tabs allowed');
+    return;
+  }
+
+  const tabName = prompt('Enter tab name');
+
+  if (!tabName) return;
+
+  const formatted = tabName
+    .toLowerCase()
+    .trim();
+
+  if (state.tabs.includes(formatted)) {
+    alert('Tab already exists');
+    return;
+  }
+
+  state.tabs.push(formatted);
+
+  state.boards[formatted] = [];
+
+  saveState();
+
+  renderTabs();
 });
 
-renderBoard();
+/* ---------- BUTTONS ---------- */
+
+document.getElementById('add-goal')
+.addEventListener('click', () => createCard('goal'));
+
+document.getElementById('add-task')
+.addEventListener('click', () => createCard('task'));
+
+document.getElementById('add-note')
+.addEventListener('click', () => createCard('note'));
+
+/* ---------- INIT ---------- */
+
+function initializeBoardly() {
+
+  renderTabs();
+  renderBoard();
+}
+
+initializeBoardly();
