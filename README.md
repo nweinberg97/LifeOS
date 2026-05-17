@@ -1,7 +1,7 @@
-# LifeOS
-LifeOS — A minimalist spatial life organization system inspired by FigJam and OneNote. Organize goals, tasks, and notes across draggable whiteboard-style life boards with local storage persistence.
+# Boardly
+Boardly — A minimalist spatial life organization system inspired by FigJam and OneNote. Organize goals, tasks, and notes across draggable whiteboard-style life boards with local storage persistence.
 
-LifeOS allows users to organize:
+Boardly allows users to organize:
 - Goals
 - Tasks
 - Notes
