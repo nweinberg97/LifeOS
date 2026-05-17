@@ -7,13 +7,13 @@ const state = JSON.parse(localStorage.getItem('boardly-data')) || {
   currentBoard: 'health',
 
   tabs: [
-    { name: 'health', color: 1 },
-    { name: 'admin', color: 2 },
-    { name: 'chores', color: 3 },
-    { name: 'learning', color: 4 },
-    { name: 'personal', color: 5 },
-    { name: 'relationships', color: 6 },
-    { name: 'passions', color: 7 }
+    'health',
+    'admin',
+    'chores',
+    'learning',
+    'personal',
+    'relationships',
+    'passions'
   ],
 
   boards: {}
@@ -27,9 +27,9 @@ function saveState() {
 
 /* ---------- BOARDS ---------- */
 
-function ensureBoardExists(tabName) {
-  if (!state.boards[tabName]) {
-    state.boards[tabName] = [];
+function ensureBoardExists(tab) {
+  if (!state.boards[tab]) {
+    state.boards[tab] = [];
   }
 }
 
@@ -42,7 +42,10 @@ function getCurrentBoardData() {
 
 function renderBoard() {
   board.innerHTML = '';
-  getCurrentBoardData().forEach(createCardElement);
+
+  getCurrentBoardData().forEach(card => {
+    createCardElement(card);
+  });
 }
 
 /* ---------- CARDS ---------- */
@@ -107,6 +110,7 @@ function enableDragging(element, cardData) {
   let isDragging = false;
 
   element.addEventListener('mousedown', (e) => {
+
     if (e.target.tagName === 'TEXTAREA') return;
 
     isDragging = true;
@@ -118,6 +122,7 @@ function enableDragging(element, cardData) {
   });
 
   document.addEventListener('mousemove', (e) => {
+
     if (!isDragging) return;
 
     const x = e.clientX - offsetX;
@@ -131,7 +136,9 @@ function enableDragging(element, cardData) {
   });
 
   document.addEventListener('mouseup', () => {
+
     if (isDragging) saveState();
+
     isDragging = false;
     element.style.zIndex = 1;
   });
@@ -143,24 +150,22 @@ function renderTabs() {
 
   tabsContainer.innerHTML = '';
 
-  state.tabs.forEach((tabObj) => {
-
-    const name = tabObj.name;
+  state.tabs.forEach((tab) => {
 
     const button = document.createElement('button');
 
-    button.classList.add('tab', `color-${tabObj.color}`);
+    button.classList.add('tab');
 
-    if (name === state.currentBoard) {
+    if (tab === state.currentBoard) {
       button.classList.add('active');
     }
 
-    button.textContent = name;
+    button.textContent = tab;
     button.setAttribute('draggable', 'true');
 
     /* SWITCH TAB */
     button.addEventListener('click', () => {
-      state.currentBoard = name;
+      state.currentBoard = tab;
       saveState();
       renderTabs();
       renderBoard();
@@ -170,25 +175,26 @@ function renderTabs() {
     button.addEventListener('dblclick', (e) => {
       e.stopPropagation();
 
-      const newName = prompt('Rename tab:', name);
+      const newName = prompt('Rename tab:', tab);
       if (!newName) return;
 
       const formatted = newName.toLowerCase().trim();
-      if (!formatted || formatted === name) return;
 
-      if (state.tabs.find(t => t.name === formatted)) {
+      if (!formatted || formatted === tab) return;
+
+      if (state.tabs.includes(formatted)) {
         alert('Tab already exists');
         return;
       }
 
       state.tabs = state.tabs.map(t =>
-        t.name === name ? { ...t, name: formatted } : t
+        t === tab ? formatted : t
       );
 
-      state.boards[formatted] = state.boards[name] || [];
-      delete state.boards[name];
+      state.boards[formatted] = state.boards[tab] || [];
+      delete state.boards[tab];
 
-      if (state.currentBoard === name) {
+      if (state.currentBoard === tab) {
         state.currentBoard = formatted;
       }
 
@@ -197,14 +203,24 @@ function renderTabs() {
       renderBoard();
     });
 
-    /* DRAG */
+    /* DRAG START */
     button.addEventListener('dragstart', (e) => {
       button.classList.add('dragging');
-      e.dataTransfer.setData('text/plain', name);
+      e.dataTransfer.setData('text/plain', tab);
     });
 
     button.addEventListener('dragend', () => {
       button.classList.remove('dragging');
+    });
+
+    /* DROP OVER */
+    button.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      button.classList.add('drag-over');
+    });
+
+    button.addEventListener('dragleave', () => {
+      button.classList.remove('drag-over');
     });
 
     /* DROP REORDER */
@@ -212,16 +228,15 @@ function renderTabs() {
 
       e.preventDefault();
 
-      const dragged = e.dataTransfer.getData('text/plain');
+      const draggedTab = e.dataTransfer.getData('text/plain');
 
-      if (dragged === name) return;
+      if (draggedTab === tab) return;
 
-      const from = state.tabs.findIndex(t => t.name === dragged);
-      const to = state.tabs.findIndex(t => t.name === name);
+      const fromIndex = state.tabs.indexOf(draggedTab);
+      const toIndex = state.tabs.indexOf(tab);
 
-      const temp = state.tabs[from];
-      state.tabs.splice(from, 1);
-      state.tabs.splice(to, 0, temp);
+      state.tabs.splice(fromIndex, 1);
+      state.tabs.splice(toIndex, 0, draggedTab);
 
       saveState();
       renderTabs();
@@ -246,16 +261,12 @@ document.getElementById('add-tab')
 
   const formatted = tabName.toLowerCase().trim();
 
-  if (state.tabs.find(t => t.name === formatted)) {
+  if (state.tabs.includes(formatted)) {
     alert('Tab already exists');
     return;
   }
 
-  state.tabs.push({
-    name: formatted,
-    color: Math.floor(Math.random() * 10) + 1
-  });
-
+  state.tabs.push(formatted);
   state.boards[formatted] = [];
 
   saveState();
