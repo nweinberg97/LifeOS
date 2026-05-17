@@ -28,6 +28,7 @@ body {
   align-items: flex-end;
   gap: 8px;
   margin-top: 14px;
+  flex-wrap: wrap;
 }
 
 .tab {
@@ -39,6 +40,7 @@ body {
   text-transform: capitalize;
   transition: 0.15s ease;
   color: #444;
+  user-select: none;
 }
 
 .tab:hover {
@@ -52,11 +54,21 @@ body {
   border-bottom: 2px solid white;
 }
 
+/* ---------- TAB DRAG STATES ---------- */
+
+.tab.dragging {
+  opacity: 0.5;
+}
+
+.tab.drag-over {
+  outline: 2px dashed #999;
+}
+
 /* ---------- TOOLBAR ---------- */
 
 .toolbar {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 12px 20px;
   background: white;
@@ -66,6 +78,7 @@ body {
 .toolbar-left {
   display: flex;
   gap: 10px;
+  justify-content: center;
 }
 
 .toolbar button {
@@ -152,7 +165,7 @@ body {
 
 .card textarea {
   width: 100%;
-  height: 100%;
+  min-height: 90px;
   border: none;
   resize: none;
   background: transparent;
@@ -161,4 +174,5 @@ body {
   line-height: 1.4;
   font-family: inherit;
   color: #111827;
+  overflow: hidden;
 }
