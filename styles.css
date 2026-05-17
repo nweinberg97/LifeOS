@@ -33,7 +33,6 @@ body {
 
 .tab {
   border: none;
-  background: #e9e9e9;
   padding: 10px 16px;
   border-radius: 10px 10px 0 0;
   cursor: pointer;
@@ -41,12 +40,10 @@ body {
   transition: 0.15s ease;
   color: #444;
   user-select: none;
+  font-size: 13px;
 }
 
-.tab:hover {
-  background: #dddddd;
-}
-
+/* ACTIVE TAB */
 .tab.active {
   background: white;
   color: black;
@@ -54,8 +51,12 @@ body {
   border-bottom: 2px solid white;
 }
 
-/* ---------- TAB DRAG STATES ---------- */
+/* HOVER */
+.tab:hover {
+  filter: brightness(0.98);
+}
 
+/* DRAG STATES */
 .tab.dragging {
   opacity: 0.5;
 }
@@ -63,6 +64,20 @@ body {
 .tab.drag-over {
   outline: 2px dashed #999;
 }
+
+/* ---------- NEW TAB COLOR SYSTEM ---------- */
+/* (driven by JS state.tabs[i].color) */
+
+.tab.color-1 { background: #e0f2fe; }
+.tab.color-2 { background: #dcfce7; }
+.tab.color-3 { background: #fef9c3; }
+.tab.color-4 { background: #fee2e2; }
+.tab.color-5 { background: #ede9fe; }
+.tab.color-6 { background: #fce7f3; }
+.tab.color-7 { background: #e5e7eb; }
+.tab.color-8 { background: #cffafe; }
+.tab.color-9 { background: #ffedd5; }
+.tab.color-10 { background: #d1fae5; }
 
 /* ---------- TOOLBAR ---------- */
 
@@ -78,7 +93,7 @@ body {
 .toolbar-left {
   display: flex;
   gap: 10px;
-  margin-left: 8px; /* subtle inset from edge */
+  margin-left: 8px;
 }
 
 .toolbar button {
