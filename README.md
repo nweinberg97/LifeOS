@@ -1,39 +1,58 @@
 # Boardly
-Boardly — A minimalist spatial life organization system inspired by FigJam and OneNote. Organize goals, tasks, and notes across draggable whiteboard-style life boards with local storage persistence.
 
-Boardly allows users to organize:
+Boardly is a minimalist spatial organization tool inspired by FigJam and OneNote.
+
+Organize your:
 - Goals
 - Tasks
 - Notes
 
-inside draggable whiteboard-style life categories.
+inside draggable whiteboard-style life boards.
 
 Everything is stored locally using localStorage.
+
+---
 
 ## Features
 
 - Draggable cards
-- Editable cards
+- Goal / Task / Note system
+- Color-coded cards
 - Multiple life boards
+- Custom tabs (up to 10)
 - Persistent local storage
-- Simple tab navigation
-- Goal / Task / Note card types
 - Right-click delete
+- Simple and fast UI
 
-## Tech
+---
+
+## Default Categories
+
+- Health
+- Admin
+- Chores
+- Learning
+- Personal
+- Relationships
+- Passions
+
+---
+
+## Tech Stack
 
 - HTML
 - CSS
 - Vanilla JavaScript
 - localStorage
 
+---
+
 ## Usage
 
-1. Open index.html
-2. Create boards
-3. Add cards
-4. Drag freely
-5. Double click to edit
-6. Right click to delete
+1. Open `index.html`
+2. Add cards
+3. Drag cards freely
+4. Create custom tabs
+5. Right-click cards to delete
 
 All data saves automatically.
