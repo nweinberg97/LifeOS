@@ -104,6 +104,7 @@ body {
 #add-task {
   background: #ffffff;
   color: #111827;
+  border: 1px solid #e5e7eb;
 }
 
 #add-note {
