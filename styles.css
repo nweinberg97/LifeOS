@@ -177,3 +177,18 @@ body {
   color: #111827;
   overflow: hidden;
 }
+
+/* Trash Bin Styling */
+.trash-bin {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    font-size: 40px; /* Larger size for the trash icon */
+    color: #e74c3c; /* Red color */
+}
+
+.trash-bin:hover {
+    transform: scale(1.2); /* Grow in size when hovered */
+}
