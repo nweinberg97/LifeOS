@@ -135,29 +135,37 @@ function enableDragging(element, cardData) {
     cardData.y = y;
   });
 
-  document.addEventListener('mouseup', (e) => {
+document.addEventListener('mouseup', (e) => {
 
-    if (isDragging) saveState();
+  if (isDragging) saveState();
 
-const trashBin = document.querySelector('.trash-bin');
+  const trashBin = document.querySelector('.trash-bin');
 
-if (trashBin) {
-  const rect = trashBin.getBoundingClientRect();
+  let isOverTrash = false;
 
-  const isOverTrash =
-    e.clientX >= rect.left &&
-    e.clientX <= rect.right &&
-    e.clientY >= rect.top &&
-    e.clientY <= rect.bottom;
+  if (trashBin) {
+    const rect = trashBin.getBoundingClientRect();
+
+    isOverTrash =
+      e.clientX >= rect.left &&
+      e.clientX <= rect.right &&
+      e.clientY >= rect.top &&
+      e.clientY <= rect.bottom;
+  }
 
   if (isOverTrash) {
     state.boards[state.currentBoard] =
       getCurrentBoardData().filter(c => c.id !== cardData.id);
-  } 
-    isDragging = false;
-    element.style.zIndex = 1;
-  });
-}
+  }
+
+  saveState();
+  renderBoard();
+
+  isDragging = false;
+  element.style.zIndex = 1;
+});
+
+
 
 /* ---------- TABS ---------- */
 
