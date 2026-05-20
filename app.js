@@ -135,7 +135,7 @@ function enableDragging(element, cardData) {
     cardData.y = y;
   });
 
-  document.addEventListener('mouseup', () => {
+  document.addEventListener('mouseup', (e) => {
 
     if (isDragging) saveState();
 
