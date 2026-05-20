@@ -139,6 +139,23 @@ function enableDragging(element, cardData) {
 
     if (isDragging) saveState();
 
+const trashBin = document.querySelector('.trash-bin');
+
+if (trashBin) {
+  const rect = trashBin.getBoundingClientRect();
+
+  const isOverTrash =
+    e.clientX >= rect.left &&
+    e.clientX <= rect.right &&
+    e.clientY >= rect.top &&
+    e.clientY <= rect.bottom;
+
+  if (isOverTrash) {
+    state.boards[state.currentBoard] =
+      getCurrentBoardData().filter(c => c.id !== cardData.id);
+  }
+}
+    
     isDragging = false;
     element.style.zIndex = 1;
   });
