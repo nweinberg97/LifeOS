@@ -14,9 +14,10 @@ body {
   height: 60px;      /* Explicitly locked structural height */
   display: flex;
   align-items: center;
+  position: relative; /* Context parent for absolute layout centering */
 }
 
-/* Spaces out the logo on the left and tabs/button on the right */
+/* Spaces out the logo on the left and container zones across the viewport */
 .header-nav-row {
   display: flex;
   justify-content: space-between;
@@ -30,12 +31,17 @@ body {
   font-size: 24px;
   font-weight: 700;
   white-space: nowrap;
+  z-index: 10; /* Ensures logo remains interactive over absolute layers */
 }
 
-/* Holds tabs and the trailing creation button inline */
+/* Centers the entire tab cluster perfectly in the middle of the viewport */
 .tabs-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%); /* Shifts baseline back to exact true center */
   display: flex;
-  align-items: center; /* Locks the middle horizon line for tabs and the button */
+  align-items: center; 
   gap: 12px;
   height: 100%;
 }
@@ -141,8 +147,8 @@ body {
 
 #add-tab {
   border: none;
-  background: #2563eb; /* Sleek vibrant blue for the tab accent button */
-  color: white;
+  background: #1e252b; /* Premium structural architectural off-black background */
+  color: #ffffff;
   padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
@@ -152,14 +158,14 @@ body {
   align-items: center;
   gap: 4px;
   transition: all 0.15s ease;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
 }
 
 #add-tab:hover {
-  background: #1d4ed8;
+  background: #000000; /* Pure deep black on hover interactions */
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
 }
 
 #add-tab span {
