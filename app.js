@@ -51,7 +51,6 @@ function renderBoard() {
 /* ---------- CARDS ---------- */
 
 function createCard(type) {
-
   const card = {
     id: Date.now(),
     type,
@@ -67,7 +66,6 @@ function createCard(type) {
 }
 
 function createCardElement(cardData) {
-
   const card = document.createElement('div');
 
   card.classList.add('card', cardData.type);
@@ -104,27 +102,10 @@ function createCardElement(cardData) {
 /* ---------- DRAG CARDS ---------- */
 
 function enableDragging(element, cardData) {
-
   let offsetX = 0;
   let offsetY = 0;
-  let isDragging = false;
 
-  element.addEventListener('mousedown', (e) => {
-
-    if (e.target.tagName === 'TEXTAREA') return;
-
-    isDragging = true;
-
-    offsetX = e.clientX - element.offsetLeft;
-    offsetY = e.clientY - element.offsetTop;
-
-    element.style.zIndex = 1000;
-  });
-
-  document.addEventListener('mousemove', (e) => {
-
-    if (!isDragging) return;
-
+  const onMouseMove = (e) => {
     const x = e.clientX - offsetX;
     const y = e.clientY - offsetY;
 
@@ -133,40 +114,74 @@ function enableDragging(element, cardData) {
 
     cardData.x = x;
     cardData.y = y;
-  });
 
-  document.addEventListener('mouseup', (e) => {
+    const trashBin = document.querySelector('.trash-bin');
+    if (trashBin) {
+      // Temporarily bypass the card to see what element is truly underneath it
+      element.style.pointerEvents = 'none';
+      const elementUnderMouse = document.elementFromPoint(e.clientX, e.clientY);
+      element.style.pointerEvents = 'auto'; 
 
-    if (isDragging) saveState();
+      if (elementUnderMouse && elementUnderMouse.closest('.trash-bin')) {
+        trashBin.classList.add('drag-over');
+      } else {
+        trashBin.classList.remove('drag-over');
+      }
+    }
+  };
 
-const trashBin = document.querySelector('.trash-bin');
+  const onMouseUp = (e) => {
+    // Unbind global event listeners immediately when execution finishes
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
 
-if (trashBin) {
-  const rect = trashBin.getBoundingClientRect();
-
-  const isOverTrash =
-    e.clientX >= rect.left &&
-    e.clientX <= rect.right &&
-    e.clientY >= rect.top &&
-    e.clientY <= rect.bottom;
-
-  if (isOverTrash) {
-    state.boards[state.currentBoard] =
-      getCurrentBoardData().filter(c => c.id !== cardData.id);
-  } 
-    isDragging = false;
     element.style.zIndex = 1;
+    element.classList.remove('dragging-card');
+
+    const trashBin = document.querySelector('.trash-bin');
+    if (trashBin) {
+      trashBin.classList.remove('drag-over');
+
+      element.style.pointerEvents = 'none';
+      const elementUnderMouse = document.elementFromPoint(e.clientX, e.clientY);
+      element.style.pointerEvents = 'auto';
+
+      if (elementUnderMouse && elementUnderMouse.closest('.trash-bin')) {
+        state.boards[state.currentBoard] = getCurrentBoardData().filter(c => c.id !== cardData.id);
+
+        const sound = new Audio('sounds/plastic-crunch-83779.mp3');
+        sound.play().catch(() => {});
+
+        saveState();
+        renderBoard();
+        return; 
+      }
+    }
+
+    saveState();
+  };
+
+  element.addEventListener('mousedown', (e) => {
+    if (e.target.tagName === 'TEXTAREA') return;
+
+    offsetX = e.clientX - element.offsetLeft;
+    offsetY = e.clientY - element.offsetTop;
+
+    element.style.zIndex = 1000;
+    element.classList.add('dragging-card');
+
+    // Only hook up calculations when a mouse press is active
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
   });
 }
 
 /* ---------- TABS ---------- */
 
 function renderTabs() {
-
   tabsContainer.innerHTML = '';
 
   state.tabs.forEach((tab) => {
-
     const button = document.createElement('button');
 
     button.classList.add('tab');
@@ -240,11 +255,11 @@ function renderTabs() {
 
     /* DROP REORDER */
     button.addEventListener('drop', (e) => {
-
       e.preventDefault();
 
       const draggedTab = e.dataTransfer.getData('text/plain');
 
+      if (!state.tabs.includes(draggedTab)) return;
       if (draggedTab === tab) return;
 
       const fromIndex = state.tabs.indexOf(draggedTab);
@@ -265,7 +280,6 @@ function renderTabs() {
 
 document.getElementById('add-tab')
 .addEventListener('click', () => {
-
   if (state.tabs.length >= 10) {
     alert('Maximum 10 tabs allowed');
     return;
@@ -299,6 +313,42 @@ document.getElementById('add-task')
 document.getElementById('add-note')
 .addEventListener('click', () => createCard('note'));
 
+/* ---------- TRASH BIN ---------- */
+
+function enableTrashBin() {
+  const trashBin = document.querySelector('.trash-bin');
+  if (!trashBin) return;
+
+  trashBin.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    trashBin.classList.add('drag-over');
+  });
+
+  trashBin.addEventListener('dragleave', () => {
+    trashBin.classList.remove('drag-over');
+  });
+
+  trashBin.addEventListener('drop', (e) => {
+    e.preventDefault();
+    trashBin.classList.remove('drag-over');
+
+    const draggedTab = e.dataTransfer.getData('text/plain');
+
+    if (draggedTab && state.tabs.includes(draggedTab)) {
+      state.tabs = state.tabs.filter(t => t !== draggedTab);
+      delete state.boards[draggedTab];
+
+      if (state.currentBoard === draggedTab) {
+        state.currentBoard = state.tabs[0] || '';
+      }
+
+      saveState();
+      renderTabs();
+      renderBoard();
+    }
+  });
+}
+
 /* ---------- INIT ---------- */
 
 function initializeBoardly() {
@@ -308,28 +358,3 @@ function initializeBoardly() {
 }
 
 initializeBoardly();
-
-
-function enableTrashBin() {
-  const trashBin = document.querySelector('.trash-bin');
-  const sound = new Audio('sounds/plastic-crunch-83779.mp3');
-
-  trashBin.addEventListener('dragover', (e) => {
-    e.preventDefault();
-  });
-
-  trashBin.addEventListener('drop', (e) => {
-    e.preventDefault();
-
-    const cardId = Number(e.dataTransfer.getData('text/plain'));
-
-    state.boards[state.currentBoard] =
-      getCurrentBoardData().filter(card => card.id !== cardId);
-
-    sound.currentTime = 0;
-    sound.play();
-
-    saveState();
-    renderBoard();
-  });
-}
