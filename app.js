@@ -1,17 +1,6 @@
 const board = document.getElementById('board');
 const tabsContainer = document.getElementById('tabs');
 
-const pastelColors = [
-  '#F8BBD0',
-  '#C5CAE9',
-  '#BBDEFB',
-  '#C8E6C9',
-  '#FFF9C4',
-  '#FFE0B2',
-  '#D7CCC8',
-  '#E1BEE7'
-];
-
 // Pre-load the audio asset immediately at boot to prevent browser autoplay lag
 const trashSound = new Audio('sounds/plastic-crunch-83779.mp3');
 
@@ -30,8 +19,7 @@ const state = JSON.parse(localStorage.getItem('boardly-data')) || {
     'passions'
   ],
 
-  boards: {},
-  tabColors: {}
+  boards: {}
 };
 
 /* ---------- SAVE ---------- */
@@ -47,56 +35,6 @@ function ensureBoardExists(tab) {
     state.boards[tab] = [];
   }
 }
-
-/* ---------- COLOR MENU ---------- */
-
-function showColorMenu(event, tab) {
-  const existing = document.querySelector('.color-menu');
-  if (existing) existing.remove();
-
-  const menu = document.createElement('div');
-  menu.className = 'color-menu';
-
-  pastelColors.forEach(color => {
-    const swatch = document.createElement('div');
-    swatch.className = 'color-swatch';
-    swatch.style.background = color;
-
-    swatch.addEventListener('click', (e) => {
-      e.stopPropagation(); // Stop click from bubbling up to document
-      state.tabColors[tab] = color;
-
-      saveState();
-      renderTabs();
-      cleanupMenu();
-    });
-
-    menu.appendChild(swatch);
-  });
-
-  document.body.appendChild(menu);
-
-  menu.style.left = `${event.pageX}px`;
-  menu.style.top = `${event.pageY}px`;
-
-  const closeOnOutsideClick = (e) => {
-    if (!menu.contains(e.target)) {
-      cleanupMenu();
-    }
-  };
-
-  function cleanupMenu() {
-    menu.remove();
-    document.removeEventListener('click', closeOnOutsideClick);
-  }
-
-  // Prevent immediate execution from the initial right-click
-  setTimeout(() => {
-    document.addEventListener('click', closeOnOutsideClick);
-  }, 10);
-}
-
-/* ---------- HELPERS ---------- */
 
 function getCurrentBoardData() {
   ensureBoardExists(state.currentBoard);
@@ -182,6 +120,7 @@ function enableDragging(element, cardData) {
 
     const trashBin = document.querySelector('.trash-bin');
     if (trashBin) {
+      // Temporarily bypass the card to see what element is truly underneath it
       element.style.pointerEvents = 'none';
       const elementUnderMouse = document.elementFromPoint(e.clientX, e.clientY);
       element.style.pointerEvents = 'auto'; 
@@ -195,6 +134,7 @@ function enableDragging(element, cardData) {
   };
 
   const onMouseUp = (e) => {
+    // Unbind global event listeners immediately when execution finishes
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
 
@@ -210,8 +150,10 @@ function enableDragging(element, cardData) {
       element.style.pointerEvents = 'auto';
 
       if (elementUnderMouse && elementUnderMouse.closest('.trash-bin')) {
+        // Filter card out of current board array
         state.boards[state.currentBoard] = getCurrentBoardData().filter(c => c.id !== cardData.id);
 
+        // Reset the audio tracking to the beginning and play the preloaded asset
         trashSound.currentTime = 0;
         trashSound.play().catch(err => console.log("Audio playback prevented:", err));
 
@@ -233,6 +175,7 @@ function enableDragging(element, cardData) {
     element.style.zIndex = 1000;
     element.classList.add('dragging-card');
 
+    // Only hook up calculations when a mouse press is active
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
@@ -255,21 +198,12 @@ function renderTabs() {
     button.textContent = tab;
     button.setAttribute('draggable', 'true');
 
-    // APPLY PICKED TAB COLOR
-    button.style.backgroundColor = state.tabColors[tab] || '#ffffff';
-
     /* SWITCH TAB */
     button.addEventListener('click', () => {
       state.currentBoard = tab;
       saveState();
       renderTabs();
       renderBoard();
-    });
-
-    /* RIGHT CLICK → SHOW COLOR MENU */
-    button.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      showColorMenu(e, tab);
     });
 
     /* RENAME TAB */
@@ -292,16 +226,8 @@ function renderTabs() {
         t === tab ? formatted : t
       );
 
-      // Deep data migration: Safely copy arrays and clear old key references
-      ensureBoardExists(tab);
-      state.boards[formatted] = [...state.boards[tab]];
+      state.boards[formatted] = state.boards[tab] || [];
       delete state.boards[tab];
-
-      // Transfer the background color layout configuration cleanly
-      if (state.tabColors[tab]) {
-        state.tabColors[formatted] = state.tabColors[tab];
-        delete state.tabColors[tab];
-      }
 
       if (state.currentBoard === tab) {
         state.currentBoard = formatted;
@@ -416,7 +342,6 @@ function enableTrashBin() {
     if (draggedTab && state.tabs.includes(draggedTab)) {
       state.tabs = state.tabs.filter(t => t !== draggedTab);
       delete state.boards[draggedTab];
-      delete state.tabColors[draggedTab];
 
       if (state.currentBoard === draggedTab) {
         state.currentBoard = state.tabs[0] || '';
