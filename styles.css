@@ -9,15 +9,15 @@ body {
 
 .topbar {
   background: white;
-  border-bottom: 1px solid #ddd;
-  padding: 0 24px;   /* Let height handle vertical scaling */
-  height: 60px;      /* Explicitly locked structural height */
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0 24px;   /* Height strictly controls vertical spacing */
+  height: 60px;      /* Locked structural height */
   display: flex;
   align-items: center;
-  position: relative; /* Context parent for absolute layout centering */
+  position: relative; /* Context anchor for perfect viewport centering */
 }
 
-/* Spaces out the logo on the left and container zones across the viewport */
+/* Three-zone flex layout: Logo (Left), Tabs (Center), Button (Right) */
 .header-nav-row {
   display: flex;
   justify-content: space-between;
@@ -31,59 +31,106 @@ body {
   font-size: 24px;
   font-weight: 700;
   white-space: nowrap;
-  z-index: 10; /* Ensures logo remains interactive over absolute layers */
+  z-index: 10; /* Keeps it above absolute layers */
+  letter-spacing: -0.5px;
 }
 
-/* Centers the entire tab cluster perfectly in the middle of the viewport */
+/* Centers ONLY the tabs directly in the true middle of the screen */
 .tabs-wrapper {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%); /* Shifts baseline back to exact true center */
+  transform: translate(-50%, -50%); /* Strips wrapper width out of center calculation */
   display: flex;
-  align-items: center; 
-  gap: 12px;
+  align-items: center;
   height: 100%;
+  z-index: 5;
 }
 
 .tabs {
   display: flex;
-  align-items: center; /* Keeps tab elements aligned to the wrapper baseline */
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
   flex-wrap: nowrap;
 }
 
+/* Base Tab Styling: Pill-shaped, crisp, and clean */
 .tab {
-  border: 1px solid #e5e7eb;
-  background: #f3f4f6;
-  padding: 8px 14px;
-  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  border-radius: 20px; 
   cursor: pointer;
   text-transform: capitalize;
   font-size: 14px;
-  font-weight: 500;
-  transition: all 0.15s ease;
-  color: #4b5563;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   white-space: nowrap;
 }
 
-.tab:hover {
-  background: #e5e7eb;
-  color: #1f2937;
+/* ---------- ROTATING SLEEK PASTEL PALETTE ---------- */
+
+/* Tab 1: Sage Mint */
+.tab:nth-child(5n+1) {
+  background: #e6f4ea;
+  color: #137333;
+}
+.tab:nth-child(5n+1):hover {
+  background: #ceead6;
+  color: #0d5c26;
 }
 
+/* Tab 2: Soft Lavender */
+.tab:nth-child(5n+2) {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+.tab:nth-child(5n+2):hover {
+  background: #e9d5ff;
+  color: #581c87;
+}
+
+/* Tab 3: Blush Rose */
+.tab:nth-child(5n+3) {
+  background: #fce8e6;
+  color: #c5221f;
+}
+.tab:nth-child(5n+3):hover {
+  background: #fad2cf;
+  color: #a51d1a;
+}
+
+/* Tab 4: Sky Blue */
+.tab:nth-child(5n+4) {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+.tab:nth-child(5n+4):hover {
+  background: #d2e3fc;
+  color: #1557b0;
+}
+
+/* Tab 5: Warm Apricot */
+.tab:nth-child(5n+5) {
+  background: #fef3c7;
+  color: #b45309;
+}
+.tab:nth-child(5n+5):hover {
+  background: #fde68a;
+  color: #92400e;
+}
+
+/* ---------- ACTIVE TAB OVERRIDE ---------- */
 .tab.active {
-  background: #1e293b;
-  color: white;
-  font-weight: 600;
-  border-color: #1e293b;
+  box-shadow: 0 0 0 2px currentColor;
+  background: white !important; /* Standardizes active background to pop sharply */
+  transform: scale(1.02);
 }
 
 /* ---------- TAB DRAG STATES ---------- */
 
 .tab.dragging {
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 .tab.drag-over {
@@ -96,7 +143,7 @@ body {
   position: fixed;
   bottom: 24px;
   left: 50%;
-  transform: translateX(-50%); /* Locks the cluster exactly in the center */
+  transform: translateX(-50%); 
   display: flex;
   gap: 12px;
   z-index: 9999;
@@ -147,10 +194,10 @@ body {
 
 #add-tab {
   border: none;
-  background: #1e252b; /* Premium structural architectural off-black background */
+  background: #1e252b; /* Architectural off-black */
   color: #ffffff;
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: 20px; /* Aligned with pastel pill geometries */
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
@@ -160,10 +207,12 @@ body {
   transition: all 0.15s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
+  z-index: 10; /* Ensures it stays interactive on the far right layer */
+  margin-left: auto; /* Hard-anchors the button to the absolute right side of the layout row */
 }
 
 #add-tab:hover {
-  background: #000000; /* Pure deep black on hover interactions */
+  background: #000000; /* Pure black focus state */
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
 }
@@ -178,7 +227,6 @@ body {
 #board {
   position: relative;
   width: 100vw;
-  /* Balanced to fit perfectly under the 60px frame header */
   height: calc(100vh - 60px); 
   overflow: hidden;
 }
