@@ -1,6 +1,9 @@
 const board = document.getElementById('board');
 const tabsContainer = document.getElementById('tabs');
 
+// Pre-load the audio asset immediately at boot to prevent browser autoplay lag
+const trashSound = new Audio('sounds/plastic-crunch-83779.mp3');
+
 /* ---------- STATE ---------- */
 
 const state = JSON.parse(localStorage.getItem('boardly-data')) || {
@@ -147,10 +150,12 @@ function enableDragging(element, cardData) {
       element.style.pointerEvents = 'auto';
 
       if (elementUnderMouse && elementUnderMouse.closest('.trash-bin')) {
+        // Filter card out of current board array
         state.boards[state.currentBoard] = getCurrentBoardData().filter(c => c.id !== cardData.id);
 
-        const sound = new Audio('sounds/plastic-crunch-83779.mp3');
-        sound.play().catch(() => {});
+        // Reset the audio tracking to the beginning and play the preloaded asset
+        trashSound.currentTime = 0;
+        trashSound.play().catch(err => console.log("Audio playback prevented:", err));
 
         saveState();
         renderBoard();
