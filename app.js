@@ -4,6 +4,21 @@ const tabsContainer = document.getElementById('tabs');
 // Pre-load the audio asset immediately at boot to prevent browser autoplay lag
 const trashSound = new Audio('sounds/plastic-crunch-83779.mp3');
 
+// Simple collection of options for background highlights
+const pastelColors = [
+  '#F8BBD0', // Soft Pink
+  '#C5CAE9', // Soft Indigo
+  '#BBDEFB', // Soft Blue
+  '#C8E6C9', // Soft Green
+  '#FFF9C4', // Soft Yellow
+  '#FFE0B2', // Soft Orange
+  '#D7CCC8', // Soft Brown
+  '#E1BEE7'  // Soft Purple
+];
+
+// Pure operational in-memory storage. No localStorage variables to clash or trigger resets.
+const activeTabColors = new Map();
+
 /* ---------- STATE ---------- */
 
 const state = JSON.parse(localStorage.getItem('boardly-data')) || {
@@ -181,6 +196,75 @@ function enableDragging(element, cardData) {
   });
 }
 
+/* ---------- IN-MEMORY POPUP COLOR PICKER ---------- */
+
+function showColorMenu(event, tab) {
+  const existing = document.querySelector('.color-menu');
+  if (existing) existing.remove();
+
+  const menu = document.createElement('div');
+  menu.className = 'color-menu';
+
+  // Apply explicit styling coordinates based entirely on mouse positions
+  Object.assign(menu.style, {
+    position: 'absolute',
+    left: `${event.pageX}px`,
+    top: `${event.pageY}px`,
+    zIndex: '10000',
+    background: '#ffffff',
+    border: '1px solid #ccc',
+    borderRadius: '8px',
+    padding: '8px',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 30px)',
+    gap: '6px',
+    boxShadow: '0px 4px 10px rgba(0,0,0,0.15)'
+  });
+
+  pastelColors.forEach(color => {
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch';
+    
+    Object.assign(swatch.style, {
+      width: '30px',
+      height: '30px',
+      borderRadius: '4px',
+      backgroundColor: color,
+      cursor: 'pointer',
+      border: '1px solid rgba(0,0,0,0.1)'
+    });
+
+    swatch.addEventListener('click', (e) => {
+      e.stopPropagation();
+      
+      // Store in memory allocation map instead of touching data structures
+      activeTabColors.set(tab, color);
+
+      renderTabs();
+      cleanupMenu();
+    });
+
+    menu.appendChild(swatch);
+  });
+
+  document.body.appendChild(menu);
+
+  const closeOnOutsideClick = (e) => {
+    if (!menu.contains(e.target)) {
+      cleanupMenu();
+    }
+  };
+
+  function cleanupMenu() {
+    menu.remove();
+    document.removeEventListener('mousedown', closeOnOutsideClick);
+  }
+
+  setTimeout(() => {
+    document.addEventListener('mousedown', closeOnOutsideClick);
+  }, 20);
+}
+
 /* ---------- TABS ---------- */
 
 function renderTabs() {
@@ -198,12 +282,23 @@ function renderTabs() {
     button.textContent = tab;
     button.setAttribute('draggable', 'true');
 
+    // Safe color read straight out of your browser's current runtime session memory
+    if (activeTabColors.has(tab)) {
+      button.style.backgroundColor = activeTabColors.get(tab);
+    }
+
     /* SWITCH TAB */
     button.addEventListener('click', () => {
       state.currentBoard = tab;
       saveState();
       renderTabs();
       renderBoard();
+    });
+
+    /* RIGHT CLICK → TARGET DESIGNATED PICKER POPUP */
+    button.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      showColorMenu(e, tab);
     });
 
     /* RENAME TAB */
@@ -228,6 +323,12 @@ function renderTabs() {
 
       state.boards[formatted] = state.boards[tab] || [];
       delete state.boards[tab];
+
+      // Update the memory map key configuration safely if a tab is renamed
+      if (activeTabColors.has(tab)) {
+        activeTabColors.set(formatted, activeTabColors.get(tab));
+        activeTabColors.delete(tab);
+      }
 
       if (state.currentBoard === tab) {
         state.currentBoard = formatted;
@@ -342,6 +443,9 @@ function enableTrashBin() {
     if (draggedTab && state.tabs.includes(draggedTab)) {
       state.tabs = state.tabs.filter(t => t !== draggedTab);
       delete state.boards[draggedTab];
+      
+      // Clean memory assignment entry cleanly on tab destruction
+      activeTabColors.delete(draggedTab);
 
       if (state.currentBoard === draggedTab) {
         state.currentBoard = state.tabs[0] || '';
