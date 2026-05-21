@@ -11,8 +11,14 @@
 
   <!-- Top Navigation Header -->
   <header class="topbar">
-    <h1 class="logo">Boardly</h1>
-    <div class="tabs" id="tabs"></div>
+    <div class="header-nav-row">
+      <h1 class="logo">Boardly</h1>
+      
+      <div class="tabs-wrapper">
+        <div class="tabs" id="tabs"></div>
+        <button id="add-tab" title="Add New Tab"><span>+</span> Tab</button>
+      </div>
+    </div>
   </header>
 
   <!-- Main Grid Workspace Canvas -->
@@ -23,11 +29,6 @@
     <button id="add-goal" title="Add Goal"><span>+</span> Goal</button>
     <button id="add-task" title="Add Task"><span>+</span> Task</button>
     <button id="add-note" title="Add Note"><span>+</span> Note</button>
-  </div>
-
-  <!-- Floating Control Action (Bottom Left) -->
-  <div class="floating-controls">
-    <button id="add-tab" title="Add New Tab"><span>+</span> Tab</button>
   </div>
 
   <!-- Floating Trash Dropzone (Far Bottom Right) -->
