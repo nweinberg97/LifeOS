@@ -10,14 +10,14 @@ body {
 .topbar {
   background: white;
   border-bottom: 1px solid #e5e7eb;
-  padding: 0 24px;   /* Height strictly controls vertical spacing */
-  height: 60px;      /* Locked structural height */
+  padding: 0 32px;    /* Extra breathing room on the outer window edges */
+  height: 60px;       /* Locked structural height */
   display: flex;
   align-items: center;
-  position: relative; /* Context anchor for perfect viewport centering */
+  position: relative; 
 }
 
-/* Three-zone flex layout: Logo (Left), Tabs (Center), Button (Right) */
+/* Three-zone flex layout using flexible bases to balance screen geometry */
 .header-nav-row {
   display: flex;
   justify-content: space-between;
@@ -31,20 +31,19 @@ body {
   font-size: 24px;
   font-weight: 700;
   white-space: nowrap;
-  z-index: 10; /* Keeps it above absolute layers */
   letter-spacing: -0.5px;
+  flex-grow: 1;
+  flex-basis: 20%;
 }
 
-/* Centers ONLY the tabs directly in the true middle of the screen */
+/* Centers the tab list horizontally across the screen */
 .tabs-wrapper {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%); /* Strips wrapper width out of center calculation */
   display: flex;
   align-items: center;
+  justify-content: center;
   height: 100%;
-  z-index: 5;
+  flex-grow: 1;
+  flex-basis: 60%;
 }
 
 .tabs {
@@ -54,7 +53,7 @@ body {
   flex-wrap: nowrap;
 }
 
-/* Base Tab Styling: Neutral, structural pill shape */
+/* Base Tab Styling: Clean, premium structural capsule shape */
 .tab {
   border: 1px solid #e5e7eb;
   padding: 8px 14px;
@@ -79,7 +78,7 @@ body {
   border-color: #d1d5db;
 }
 
-/* Inside-tab Color Indicator Dot */
+/* Functional Color Indicator Dot Configuration */
 .tab-dot {
   width: 8px;
   height: 8px;
@@ -92,7 +91,7 @@ body {
 
 /* ---------- ACTIVE TAB OVERRIDE ---------- */
 .tab.active {
-  background: #1e252b !important; /* Premium off-black active state */
+  background: #1e252b !important; /* Premium architectural off-black text shell */
   color: #ffffff !important;
   border-color: #1e252b;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
@@ -100,6 +99,40 @@ body {
 
 .tab.active .tab-dot {
   transform: scale(1.2);
+}
+
+/* ---------- ADD TAB BUTTON (RIGHT BOUNDARY) ---------- */
+#add-tab {
+  border: none;
+  background: #1e252b; 
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  
+  flex-grow: 1;
+  flex-basis: 20%;
+  max-width: max-content;
+  margin-left: auto; /* Securely pins button to right edge area with breathing space */
+}
+
+#add-tab:hover {
+  background: #000000;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+#add-tab span {
+  font-size: 16px;
+  font-weight: 700;
 }
 
 /* ---------- CUSTOM COLOR PICKER MENU ---------- */
@@ -120,7 +153,7 @@ body {
 .color-swatch {
   width: 32px;
   height: 32px;
-  border-radius: 50%; /* Rounded matching layout language */
+  border-radius: 50%;
   cursor: pointer;
   border: 1px solid rgba(0, 0, 0, 0.08);
   transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -153,7 +186,6 @@ body {
   z-index: 9999;
 }
 
-/* Clean, pill-shaped styling for card buttons */
 .floating-actions button {
   border: none;
   padding: 12px 20px;
@@ -196,36 +228,6 @@ body {
   color: #111827;
 }
 
-#add-tab {
-  border: none;
-  background: #1e252b; /* Architectural off-black */
-  color: #ffffff;
-  padding: 8px 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.15s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  white-space: nowrap;
-  z-index: 10;
-  margin-left: auto;
-}
-
-#add-tab:hover {
-  background: #000000;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
-}
-
-#add-tab span {
-  font-size: 16px;
-  font-weight: 700;
-}
-
 /* ---------- BOARD CANVAS ---------- */
 
 #board {
@@ -233,7 +235,7 @@ body {
   width: 100vw;
   height: calc(100vh - 60px); 
   overflow: hidden;
-  transition: background-color 0.3s ease; /* Fluid color transitions between board states */
+  transition: background-color 0.3s ease;
 }
 
 /* ---------- CARDS ---------- */
