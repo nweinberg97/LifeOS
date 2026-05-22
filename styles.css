@@ -17,10 +17,8 @@ body {
   position: relative; 
 }
 
-/* Three-zone layout: Left, Center, Right balances cleanly */
 .header-nav-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   width: 100%;
   height: 100%;
@@ -32,17 +30,23 @@ body {
   font-weight: 700;
   white-space: nowrap;
   letter-spacing: -0.5px;
-  flex: 1 1 20%;
-  text-align: left;
+  flex: 0 0 15%;
 }
 
-/* Centers the tab list horizontally across the screen */
+/* Centers the tab list horizontally across the screen while limiting maximum size expansion */
 .tabs-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
-  flex: 1 1 60%;
+  flex: 1 1 65%;
+  max-width: 65%;
+  overflow-x: auto;
+}
+
+/* Custom scroller mitigation for tabs track if boundaries overflow */
+.tabs-wrapper::-webkit-scrollbar {
+  display: none;
 }
 
 .tabs {
@@ -50,6 +54,11 @@ body {
   align-items: center;
   gap: 8px;
   flex-wrap: nowrap;
+}
+
+/* Explicit layout separation metric between center track and right-hand interaction node */
+.header-spacer {
+  flex: 0 0 40px; /* Enforces a strict, un-collapsible 40px barrier space */
 }
 
 /* Base Tab Styling: Clean capsule shape */
@@ -69,7 +78,6 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  position: relative;
 }
 
 .tab:hover {
@@ -85,33 +93,20 @@ body {
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
-  transition: transform 0.2s ease, background-color 0.2s ease;
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* ---------- ACTIVE TAB OVERRIDE ---------- */
+/* ---------- ACTIVE TAB OVERRIDE (CLEAN RING AND SCALE SIGNAL) ---------- */
 .tab.active {
   background: #1e252b !important; 
   color: #ffffff !important;
   border-color: #1e252b;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px); /* Adds subtle vertical separation from inactive tabs */
-}
-
-/* Accent highlight bar underneath the active tab to differentiate from the add-tab button */
-.tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 20%;
-  width: 60%;
-  height: 3px;
-  background: #1e252b;
-  border-radius: 2px;
+  transform: scale(1.04); /* Clean geometric pop signature */
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
 .tab.active .tab-dot {
-  transform: scale(1.2);
+  transform: scale(1.1);
 }
 
 /* ---------- ADD TAB BUTTON (RIGHT BOUNDARY) ---------- */
@@ -131,9 +126,8 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
   
-  flex: 1 1 20%;
-  max-width: max-content;
-  margin-left: auto; /* Pushes button firmly to the right edge zone */
+  flex: 0 0 auto;
+  margin-left: auto; 
 }
 
 #add-tab:hover {
@@ -159,7 +153,6 @@ body {
   grid-template-columns: repeat(5, 32px);
   gap: 8px;
   box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.12);
-  transition: opacity 0.15s ease;
 }
 
 .color-swatch {
@@ -174,16 +167,6 @@ body {
 .color-swatch:hover {
   transform: scale(1.15);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* ---------- TAB DRAG STATES ---------- */
-
-.tab.dragging {
-  opacity: 0.4;
-}
-
-.tab.drag-over {
-  outline: 2px dashed #999;
 }
 
 /* ---------- FLOATING ACTION CLUSTER (CENTERED BOTTOM) ---------- */
@@ -209,9 +192,8 @@ body {
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   
-  /* Black background and white text for creation controls */
   background: #1e252b;
   color: #ffffff;
 }
@@ -226,6 +208,17 @@ body {
   font-size: 16px;
   font-weight: 700;
 }
+
+/* Indicator dots nested directly inside the card creation action links */
+.btn-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.goal-dot { background: #3b82f6; }
+.task-dot { background: #9ca3af; }
+.note-dot { background: #eab308; }
 
 /* ---------- BOARD CANVAS ---------- */
 
@@ -262,7 +255,6 @@ body {
   cursor: grabbing;
 }
 
-/* Inner header container to place the matching status circle indicator inside the cards */
 .card-header {
   display: flex;
   align-items: center;
@@ -278,30 +270,28 @@ body {
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* ---------- CARD TYPES ---------- */
+/* ---------- CARD TYPES (SOFTER PALETTE CHANNELS RESTORED) ---------- */
 
 .goal {
-  background: #3b82f6; /* High-vibrancy Blue */
+  background: #93c5fd; /* Soft Blue */
 }
 .goal .card-dot {
-  background: #3b82f6;
-  filter: brightness(0.8);
+  background: #3b82f6; /* Matching high vibrancy blue dot */
 }
 
 .task {
-  background: #ffffff;
+  background: #ffffff; /* Clean White */
   border: 1px solid #e5e7eb;
 }
 .task .card-dot {
-  background: #9ca3af; /* Medium Slate Gray indicator circle for default task card base */
+  background: #9ca3af; /* Matching structural gray dot */
 }
 
 .note {
-  background: #eab308; /* High-vibrancy Amber Yellow */
+  background: #ffee8c; /* Soft Yellow */
 }
 .note .card-dot {
-  background: #eab308;
-  filter: brightness(0.8);
+  background: #eab308; /* Matching rich amber dot */
 }
 
 /* ---------- TEXTAREA ---------- */
@@ -316,12 +306,8 @@ body {
   font-size: 14px;
   line-height: 1.4;
   font-family: inherit;
-  /* Flip text to white on highly saturated card types for scannable text reading contrast */
-  color: #111827; 
-}
-
-.goal textarea {
-  color: #ffffff;
+  color: #111827;
+  overflow: hidden;
 }
 
 /* ---------- TRASH BIN STYLING ---------- */
@@ -347,18 +333,4 @@ body {
 .trash-icon {
   font-size: 24px;
   user-select: none;
-}
-
-.trash-bin:hover {
-  transform: scale(1.1);
-  background: #fef2f2;
-}
-
-.active-trash {
-  transform: scale(1.3);
-  background: #ef4444 !important;
-}
-
-.active-trash .trash-icon {
-  filter: brightness(0) invert(1);
 }
