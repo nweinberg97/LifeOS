@@ -81,7 +81,6 @@ function getCurrentBoardData() {
 
 function updateCanvasBackground() {
   const currentTab = state.currentBoard;
-  // Fallback to a default systematic match color sequence if not assigned
   const tabIndex = state.tabs.indexOf(currentTab);
   const color = activeTabColors.has(currentTab) 
     ? activeTabColors.get(currentTab) 
@@ -228,7 +227,6 @@ function showColorMenu(event, tab) {
   const menu = document.createElement('div');
   menu.className = 'color-menu';
 
-  // Reposition context window layout anchor based on viewport click
   Object.assign(menu.style, {
     left: `${event.pageX}px`,
     top: `${event.pageY}px`
@@ -284,10 +282,10 @@ function renderTabs() {
 
     button.setAttribute('draggable', 'true');
 
-    // Extract correct tab-specific or systematic index fallback color
+    // Extract correct tab color configuration
     const tabColor = activeTabColors.has(tab) ? activeTabColors.get(tab) : getDefaultColor(index);
 
-    // Structural template assignment generating inline indicator dot DOM architecture
+    // Dynamic insertion of structural dot layout component inside button node text string
     button.innerHTML = `<span class="tab-dot" style="background-color: ${tabColor};"></span>${tab}`;
 
     /* SWITCH TAB */
@@ -298,7 +296,7 @@ function renderTabs() {
       renderBoard();
     });
 
-    /* RIGHT CLICK → DROP TARGET PICKER POPUP */
+    /* RIGHT CLICK → TRIGGER POPUP PICKER */
     button.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       showColorMenu(e, tab);
