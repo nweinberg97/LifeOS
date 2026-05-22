@@ -54,77 +54,81 @@ body {
   flex-wrap: nowrap;
 }
 
-/* Base Tab Styling: Pill-shaped, crisp, and clean */
+/* Base Tab Styling: Neutral, structural pill shape */
 .tab {
-  border: 1px solid transparent;
-  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  padding: 8px 14px;
   border-radius: 20px; 
   cursor: pointer;
   text-transform: capitalize;
   font-size: 14px;
   font-weight: 600;
+  background: #fdfdfd;
+  color: #4b5563;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* ---------- ROTATING SLEEK PASTEL PALETTE ---------- */
-
-/* Tab 1: Sage Mint */
-.tab:nth-child(5n+1) {
-  background: #e6f4ea;
-  color: #137333;
-}
-.tab:nth-child(5n+1):hover {
-  background: #ceead6;
-  color: #0d5c26;
+.tab:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+  border-color: #d1d5db;
 }
 
-/* Tab 2: Soft Lavender */
-.tab:nth-child(5n+2) {
-  background: #f3e8ff;
-  color: #6b21a8;
-}
-.tab:nth-child(5n+2):hover {
-  background: #e9d5ff;
-  color: #581c87;
-}
-
-/* Tab 3: Blush Rose */
-.tab:nth-child(5n+3) {
-  background: #fce8e6;
-  color: #c5221f;
-}
-.tab:nth-child(5n+3):hover {
-  background: #fad2cf;
-  color: #a51d1a;
-}
-
-/* Tab 4: Sky Blue */
-.tab:nth-child(5n+4) {
-  background: #e8f0fe;
-  color: #1a73e8;
-}
-.tab:nth-child(5n+4):hover {
-  background: #d2e3fc;
-  color: #1557b0;
-}
-
-/* Tab 5: Warm Apricot */
-.tab:nth-child(5n+5) {
-  background: #fef3c7;
-  color: #b45309;
-}
-.tab:nth-child(5n+5):hover {
-  background: #fde68a;
-  color: #92400e;
+/* Inside-tab Color Indicator Dot */
+.tab-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* ---------- ACTIVE TAB OVERRIDE ---------- */
 .tab.active {
-  box-shadow: 0 0 0 2px currentColor;
-  background: white !important; /* Standardizes active background to pop sharply */
-  transform: scale(1.02);
+  background: #1e252b !important; /* Premium off-black active state */
+  color: #ffffff !important;
+  border-color: #1e252b;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.tab.active .tab-dot {
+  transform: scale(1.2);
+}
+
+/* ---------- CUSTOM COLOR PICKER MENU ---------- */
+.color-menu {
+  position: absolute;
+  z-index: 10000;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(5, 32px);
+  gap: 8px;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.12);
+  transition: opacity 0.15s ease;
+}
+
+.color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%; /* Rounded matching layout language */
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* ---------- TAB DRAG STATES ---------- */
@@ -197,7 +201,7 @@ body {
   background: #1e252b; /* Architectural off-black */
   color: #ffffff;
   padding: 8px 14px;
-  border-radius: 20px; /* Aligned with pastel pill geometries */
+  border-radius: 20px;
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
@@ -207,12 +211,12 @@ body {
   transition: all 0.15s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
-  z-index: 10; /* Ensures it stays interactive on the far right layer */
-  margin-left: auto; /* Hard-anchors the button to the absolute right side of the layout row */
+  z-index: 10;
+  margin-left: auto;
 }
 
 #add-tab:hover {
-  background: #000000; /* Pure black focus state */
+  background: #000000;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
 }
@@ -229,6 +233,7 @@ body {
   width: 100vw;
   height: calc(100vh - 60px); 
   overflow: hidden;
+  transition: background-color 0.3s ease; /* Fluid color transitions between board states */
 }
 
 /* ---------- CARDS ---------- */
@@ -261,6 +266,7 @@ body {
 
 .task {
   background: #ffffff;
+  border: 1px solid #e5e7eb;
 }
 
 .note {
