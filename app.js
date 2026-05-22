@@ -18,9 +18,13 @@ const pastelColors = [
   '#1E252B'  // 10. Premium Architectural Off-Black
 ];
 
+// Helper mapping to give each tab a default starting color fallback if unassigned
+function getDefaultColor(tabIndex) {
+  return pastelColors[tabIndex % pastelColors.length];
+}
+
 /* ---------- ISOLATED COLOR STORAGE (100% SAFE FROM CORE STATE) ---------- */
 
-// Load colors from an entirely independent storage key so it cannot trigger a core state wipeout
 let savedColors;
 try {
   savedColors = JSON.parse(localStorage.getItem('boardly-tab-palette'));
@@ -29,11 +33,9 @@ try {
   savedColors = null;
 }
 
-// Convert back to a live Map for runtime execution, or start fresh if empty
 const activeTabColors = new Map(savedColors ? Object.entries(savedColors) : null);
 
 function saveColorsToStorage() {
-  // Convert our runtime Map into a flat object structure for safe JSON stringification
   const colorObject = Object.fromEntries(activeTabColors);
   localStorage.setItem('boardly-tab-palette', JSON.stringify(colorObject));
 }
@@ -77,8 +79,21 @@ function getCurrentBoardData() {
 
 /* ---------- BOARD ---------- */
 
+function updateCanvasBackground() {
+  const currentTab = state.currentBoard;
+  // Fallback to a default systematic match color sequence if not assigned
+  const tabIndex = state.tabs.indexOf(currentTab);
+  const color = activeTabColors.has(currentTab) 
+    ? activeTabColors.get(currentTab) 
+    : getDefaultColor(tabIndex >= 0 ? tabIndex : 0);
+
+  // Apply a very subtle 2% / 3% transparency wash across the main app workspace canvas layout frame
+  board.style.backgroundColor = `${color}15`; 
+}
+
 function renderBoard() {
   board.innerHTML = '';
+  updateCanvasBackground();
 
   getCurrentBoardData().forEach(card => {
     createCardElement(card);
@@ -88,10 +103,7 @@ function renderBoard() {
 /* ---------- CARDS ---------- */
 
 function createCard(type) {
-  // Calculate horizontal center of the viewport minus half the card width (240px / 2)
   const spawnLeft = (window.innerWidth / 2) - 120;
-
-  // Calculate vertical spawn position just above the centered bottom bar row layout 
   const spawnTop = window.innerHeight - 160 - 110;
 
   const card = {
@@ -110,14 +122,11 @@ function createCard(type) {
 
 function createCardElement(cardData) {
   const card = document.createElement('div');
-
   card.classList.add('card', cardData.type);
-
   card.style.left = `${cardData.x}px`;
   card.style.top = `${cardData.y}px`;
 
   const textarea = document.createElement('textarea');
-
   textarea.value = cardData.text;
 
   textarea.addEventListener('input', () => {
@@ -126,15 +135,11 @@ function createCardElement(cardData) {
   });
 
   card.appendChild(textarea);
-
   enableDragging(card, cardData);
 
   card.addEventListener('contextmenu', (e) => {
     e.preventDefault();
-
-    state.boards[state.currentBoard] =
-      getCurrentBoardData().filter(c => c.id !== cardData.id);
-
+    state.boards[state.currentBoard] = getCurrentBoardData().filter(c => c.id !== cardData.id);
     saveState();
     renderBoard();
   });
@@ -160,7 +165,6 @@ function enableDragging(element, cardData) {
 
     const trashBin = document.querySelector('.trash-bin');
     if (trashBin) {
-      // Temporarily bypass the card to see what element is truly underneath it
       element.style.pointerEvents = 'none';
       const elementUnderMouse = document.elementFromPoint(e.clientX, e.clientY);
       element.style.pointerEvents = 'auto'; 
@@ -174,7 +178,6 @@ function enableDragging(element, cardData) {
   };
 
   const onMouseUp = (e) => {
-    // Unbind global event listeners immediately when execution finishes
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
 
@@ -190,10 +193,7 @@ function enableDragging(element, cardData) {
       element.style.pointerEvents = 'auto';
 
       if (elementUnderMouse && elementUnderMouse.closest('.trash-bin')) {
-        // Filter card out of current board array
         state.boards[state.currentBoard] = getCurrentBoardData().filter(c => c.id !== cardData.id);
-
-        // Reset the audio tracking to the beginning and play the preloaded asset
         trashSound.currentTime = 0;
         trashSound.play().catch(err => console.log("Audio playback prevented:", err));
 
@@ -202,7 +202,6 @@ function enableDragging(element, cardData) {
         return; 
       }
     }
-
     saveState();
   };
 
@@ -215,7 +214,6 @@ function enableDragging(element, cardData) {
     element.style.zIndex = 1000;
     element.classList.add('dragging-card');
 
-    // Only hook up calculations when a mouse press is active
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
@@ -230,45 +228,23 @@ function showColorMenu(event, tab) {
   const menu = document.createElement('div');
   menu.className = 'color-menu';
 
-  // Configured as a symmetric 5-column, 2-row grid for the 10 options
+  // Reposition context window layout anchor based on viewport click
   Object.assign(menu.style, {
-    position: 'absolute',
     left: `${event.pageX}px`,
-    top: `${event.pageY}px`,
-    zIndex: '10000',
-    background: '#ffffff',
-    border: '1px solid #ccc',
-    borderRadius: '8px',
-    padding: '8px',
-    display: 'grid',
-    gridTemplateColumns: 'repeat(5, 30px)',
-    gap: '6px',
-    boxShadow: '0px 4px 10px rgba(0,0,0,0.15)'
+    top: `${event.pageY}px`
   });
 
   pastelColors.forEach(color => {
     const swatch = document.createElement('div');
     swatch.className = 'color-swatch';
-    
-    Object.assign(swatch.style, {
-      width: '30px',
-      height: '30px',
-      borderRadius: '4px',
-      backgroundColor: color,
-      cursor: 'pointer',
-      border: '1px solid rgba(0,0,0,0.1)'
-    });
+    swatch.style.backgroundColor = color;
 
     swatch.addEventListener('click', (e) => {
       e.stopPropagation();
-      
-      // Store in memory allocation map
       activeTabColors.set(tab, color);
-
-      // Commit color state to isolated localStorage key
       saveColorsToStorage();
-
       renderTabs();
+      updateCanvasBackground();
       cleanupMenu();
     });
 
@@ -298,22 +274,21 @@ function showColorMenu(event, tab) {
 function renderTabs() {
   tabsContainer.innerHTML = '';
 
-  state.tabs.forEach((tab) => {
+  state.tabs.forEach((tab, index) => {
     const button = document.createElement('button');
-
     button.classList.add('tab');
 
     if (tab === state.currentBoard) {
       button.classList.add('active');
     }
 
-    button.textContent = tab;
     button.setAttribute('draggable', 'true');
 
-    // Safe color read directly out of our persistent browser color configuration map
-    if (activeTabColors.has(tab)) {
-      button.style.backgroundColor = activeTabColors.get(tab);
-    }
+    // Extract correct tab-specific or systematic index fallback color
+    const tabColor = activeTabColors.has(tab) ? activeTabColors.get(tab) : getDefaultColor(index);
+
+    // Structural template assignment generating inline indicator dot DOM architecture
+    button.innerHTML = `<span class="tab-dot" style="background-color: ${tabColor};"></span>${tab}`;
 
     /* SWITCH TAB */
     button.addEventListener('click', () => {
@@ -323,7 +298,7 @@ function renderTabs() {
       renderBoard();
     });
 
-    /* RIGHT CLICK → TARGET DESIGNATED PICKER POPUP */
+    /* RIGHT CLICK → DROP TARGET PICKER POPUP */
     button.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       showColorMenu(e, tab);
@@ -337,7 +312,6 @@ function renderTabs() {
       if (!newName) return;
 
       const formatted = newName.toLowerCase().trim();
-
       if (!formatted || formatted === tab) return;
 
       if (state.tabs.includes(formatted)) {
@@ -345,14 +319,10 @@ function renderTabs() {
         return;
       }
 
-      state.tabs = state.tabs.map(t =>
-        t === tab ? formatted : t
-      );
-
+      state.tabs = state.tabs.map(t => t === tab ? formatted : t);
       state.boards[formatted] = state.boards[tab] || [];
       delete state.boards[tab];
 
-      // Update the color map key configuration cleanly if a tab is renamed, then save changes
       if (activeTabColors.has(tab)) {
         activeTabColors.set(formatted, activeTabColors.get(tab));
         activeTabColors.delete(tab);
@@ -473,7 +443,6 @@ function enableTrashBin() {
       state.tabs = state.tabs.filter(t => t !== draggedTab);
       delete state.boards[draggedTab];
       
-      // Remove color entry cleanly on tab deletion, then commit changes to storage
       activeTabColors.delete(draggedTab);
       saveColorsToStorage();
 
