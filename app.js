@@ -4,16 +4,16 @@ const tabsContainer = document.getElementById('tabs');
 // Pre-load the audio asset immediately at boot to prevent browser autoplay lag
 const trashSound = new Audio('sounds/plastic-crunch-83779.mp3');
 
-// Balanced 10-Colorway: 4 Blues, 4 Greens, and 2 Premium Dark Tones
+// Balanced Broad-Spectrum Palette: Clean, distinct pastel tones across the color wheel
 const pastelColors = [
-  '#E3F2FD', // 1. Ultra Light Ice Blue
-  '#D0E1FD', // 2. Soft Powder Blue
-  '#A9C7EB', // 3. Slate Blue Muted
-  '#8FB3DE', // 4. Steel Blue Highlight
-  '#F1F8E9', // 5. Minimalist Pale Mint
-  '#E2EFE0', // 6. Soft Sage Green
-  '#C2DBC1', // 7. Muted Olive/Clay Green
-  '#99BFA7', // 8. Earthy Moss Green
+  '#FFEBEE', // 1. Soft Rose / Pink
+  '#F3E5F5', // 2. Gentle Lavender / Purple
+  '#E3F2FD', // 3. Light Ice Blue
+  '#E0F7FA', // 4. Clear Sky Cyan
+  '#E8F5E9', // 5. Minimalist Mint Green
+  '#FFF9C4', // 6. Pale Butter Yellow
+  '#FFE0B2', // 7. Soft Peach / Orange
+  '#D7CCC8', // 8. Warm Earthy Clay / Taupe
   '#2C3E50', // 9. Deep Navy Charcoal
   '#1E252B'  // 10. Premium Architectural Off-Black
 ];
