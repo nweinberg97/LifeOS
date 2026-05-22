@@ -42,6 +42,11 @@ body {
   flex: 1 1 65%;
   max-width: 65%;
   overflow-x: auto;
+  scrollbar-width: none; /* Firefox clear track */
+  
+  /* Visual Fade Masks: Alerts users that additional hidden tabs exist out of frame */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 4%, #000 96%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 4%, #000 96%, transparent 100%);
 }
 
 /* Custom scroller mitigation for tabs track if boundaries overflow */
@@ -54,6 +59,7 @@ body {
   align-items: center;
   gap: 8px;
   flex-wrap: nowrap;
+  padding: 0 16px;
 }
 
 /* Explicit layout separation metric between center track and right-hand interaction node */
@@ -78,6 +84,11 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  
+  /* Text handling safeguards for elongated names */
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tab:hover {
@@ -103,6 +114,7 @@ body {
   border-color: #1e252b;
   transform: scale(1.04); /* Clean geometric pop signature */
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.18);
+  overflow: visible; /* Prevent ellipsis cutoff when active if scaling is applied */
 }
 
 .tab.active .tab-dot {
@@ -169,7 +181,7 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* ---------- FLOATING ACTION CLUSTER (CENTERED BOTTOM) ---------- */
+/* ---------- FLOATING ACTION CLUSTER ---------- */
 
 .floating-actions {
   position: fixed;
@@ -183,7 +195,7 @@ body {
 
 .floating-actions button {
   border: 1px solid #374151;
-  padding: 12px 20px;
+  padding: 8px 18px 8px 10px; /* Shift padding left to nest icons cleanly */
   border-radius: 50px;
   cursor: pointer;
   font-weight: 600;
@@ -192,7 +204,7 @@ body {
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   
   background: #1e252b;
   color: #ffffff;
@@ -204,21 +216,32 @@ body {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
-.floating-actions button span {
+/* Enclosed circular badge behind the plus symbols */
+.btn-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 16px;
   font-weight: 700;
+  flex-shrink: 0;
 }
 
-/* Indicator dots nested directly inside the card creation action links */
-.btn-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
+/* Color Matching Rules for Card Generation Nodes */
+.goal-icon {
+  background: #93c5fd; /* Soft Blue */
+  color: #ffffff;
 }
-.goal-dot { background: #3b82f6; }
-.task-dot { background: #9ca3af; }
-.note-dot { background: #eab308; }
+.task-icon {
+  background: #ffffff; /* Explicit White Background Badge */
+  color: #000000;    /* Contrast rule: + symbol stays sharp black */
+}
+.note-icon {
+  background: #ffee8c; /* Soft Yellow */
+  color: #ffffff;
+}
 
 /* ---------- BOARD CANVAS ---------- */
 
@@ -227,16 +250,30 @@ body {
   width: 100vw;
   height: calc(100vh - 60px); 
   overflow: hidden;
-  transition: background-color 0.3s ease;
+  background-color: #f4f5f7; /* Keep neutral canvas baseline */
 }
 
-/* ---------- CARDS ---------- */
+/* Architectural Top-Left Anchor Active Color Tag Indicator */
+#board::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 5px;
+  background-color: var(--active-board-accent, #1e252b);
+  border-radius: 0 0 4px 0;
+  z-index: 10;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---------- CARDS (COLOR DOTS ENTIRELY STRIPPED FROM BODY) ---------- */
 
 .card {
   position: absolute;
   width: 240px;
-  min-height: 125px;
-  padding: 14px;
+  min-height: 100px; /* Reduced since structural headers are wiped */
+  padding: 16px;
   border-radius: 14px;
   cursor: grab;
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
@@ -244,7 +281,6 @@ body {
   transition: box-shadow 0.15s ease;
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 .card:hover {
@@ -255,50 +291,26 @@ body {
   cursor: grabbing;
 }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 12px;
-}
-
-.card-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* ---------- CARD TYPES (SOFTER PALETTE CHANNELS RESTORED) ---------- */
+/* ---------- CARD TYPES (CLEAN MINIMAL PAPERS) ---------- */
 
 .goal {
   background: #93c5fd; /* Soft Blue */
-}
-.goal .card-dot {
-  background: #3b82f6; /* Matching high vibrancy blue dot */
 }
 
 .task {
   background: #ffffff; /* Clean White */
   border: 1px solid #e5e7eb;
 }
-.task .card-dot {
-  background: #9ca3af; /* Matching structural gray dot */
-}
 
 .note {
   background: #ffee8c; /* Soft Yellow */
-}
-.note .card-dot {
-  background: #eab308; /* Matching rich amber dot */
 }
 
 /* ---------- TEXTAREA ---------- */
 
 .card textarea {
   width: 100%;
-  min-height: 90px;
+  min-height: 85px;
   border: none;
   resize: none;
   background: transparent;
