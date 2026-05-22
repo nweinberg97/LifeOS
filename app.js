@@ -1,5 +1,6 @@
 const board = document.getElementById('board');
 const tabsContainer = document.getElementById('tabs');
+const tabsWrapper = document.getElementById('tabs-wrapper');
 
 const trashSound = new Audio('sounds/plastic-crunch-83779.mp3');
 
@@ -71,7 +72,7 @@ function getCurrentBoardData() {
   return state.boards[state.currentBoard];
 }
 
-/* ---------- BOARD ---------- */
+/* ---------- BOARD INDICATION TRACKING ---------- */
 
 function updateCanvasBackground() {
   const currentTab = state.currentBoard;
@@ -80,8 +81,8 @@ function updateCanvasBackground() {
     ? activeTabColors.get(currentTab) 
     : getDefaultColor(tabIndex >= 0 ? tabIndex : 0);
 
-  // Soft translucent wash on backboard
-  board.style.backgroundColor = `${color}10`; 
+  // Smoothly sets the clean top-left accent indicator variable via architectural CSS injection
+  board.style.setProperty('--active-board-accent', color);
 }
 
 function renderBoard() {
@@ -93,7 +94,7 @@ function renderBoard() {
   });
 }
 
-/* ---------- CARDS ---------- */
+/* ---------- CARDS (CLEAN STRUCTURAL MARKUP - NO DOTS) ---------- */
 
 function createCard(type) {
   const spawnLeft = (window.innerWidth / 2) - 120;
@@ -119,16 +120,10 @@ function createCardElement(cardData) {
   card.style.left = `${cardData.x}px`;
   card.style.top = `${cardData.y}px`;
 
-  // Append card header with inner status color circle setup
-  const cardHeader = document.createElement('div');
-  cardHeader.className = 'card-header';
-  const cardDot = document.createElement('span');
-  cardDot.className = 'card-dot';
-  cardHeader.appendChild(cardDot);
-  card.appendChild(cardHeader);
-
+  // Eliminated .card-header and color status dots completely to maximize workspace cleanliness
   const textarea = document.createElement('textarea');
   textarea.value = cardData.text;
+  textarea.placeholder = "Write a task...";
 
   textarea.addEventListener('input', () => {
     cardData.text = textarea.value;
@@ -277,6 +272,7 @@ function renderTabs() {
   state.tabs.forEach((tab, index) => {
     const button = document.createElement('button');
     button.classList.add('tab');
+    button.title = tab; // Native tooltip backup for collapsed names
 
     if (tab === state.currentBoard) {
       button.classList.add('active');
@@ -372,6 +368,14 @@ function renderTabs() {
     tabsContainer.appendChild(button);
   });
 }
+
+/* ---------- HORIZONTAL SCROLL MANAGEMENT VIA MOUSE WHEEL ---------- */
+
+tabsWrapper.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  // Translates vertical rotation into clean horizontal viewport steps
+  tabsWrapper.scrollLeft += e.deltaY;
+});
 
 /* ---------- ADD TAB ---------- */
 
