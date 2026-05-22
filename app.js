@@ -3,18 +3,18 @@ const tabsContainer = document.getElementById('tabs');
 
 const trashSound = new Audio('sounds/plastic-crunch-83779.mp3');
 
-// Vibrant Broad-Spectrum Palette: Clean, deep, highly saturated tones across the color wheel
+// Vibrant Broad-Spectrum Palette for the Top Navigation row dots
 const vibrantColors = [
-  '#ef4444', // 1. Vibrant Red
-  '#3b82f6', // 2. Electric Blue
-  '#10b981', // 3. Emerald Green
-  '#f59e0b', // 4. Amber Yellow
-  '#8b5cf6', // 5. Vivid Purple
-  '#ec4899', // 6. Hot Pink
-  '#06b6d4', // 7. Cyan / Teal
-  '#f97316', // 8. Pure Orange
-  '#64748b', // 9. Slate Gray
-  '#1e252b'  // 10. Architectural Charcoal
+  '#ef4444', 
+  '#3b82f6', 
+  '#10b981', 
+  '#f59e0b', 
+  '#8b5cf6', 
+  '#ec4899', 
+  '#06b6d4', 
+  '#f97316', 
+  '#64748b', 
+  '#1e252b'
 ];
 
 function getDefaultColor(tabIndex) {
@@ -80,8 +80,8 @@ function updateCanvasBackground() {
     ? activeTabColors.get(currentTab) 
     : getDefaultColor(tabIndex >= 0 ? tabIndex : 0);
 
-  // Apply a subtle 8% transparency wash to match the new high vibrancy colors cleanly
-  board.style.backgroundColor = `${color}13`; 
+  // Soft translucent wash on backboard
+  board.style.backgroundColor = `${color}10`; 
 }
 
 function renderBoard() {
@@ -119,7 +119,7 @@ function createCardElement(cardData) {
   card.style.left = `${cardData.x}px`;
   card.style.top = `${cardData.y}px`;
 
-  // Appends top header dot layout track to the card frame dynamically
+  // Append card header with inner status color circle setup
   const cardHeader = document.createElement('div');
   cardHeader.className = 'card-header';
   const cardDot = document.createElement('span');
