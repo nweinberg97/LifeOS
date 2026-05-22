@@ -14,10 +14,13 @@
     <div class="header-nav-row">
       <h1 class="logo">Boardly</h1>
       
-      <!-- Centers ONLY the actual board tabs -->
+      <!-- Centers ONLY the actual board tabs with a fixed geometric roof -->
       <div class="tabs-wrapper">
         <div class="tabs" id="tabs"></div>
       </div>
+
+      <!-- Explicit Layout Spacer to enforce rigid padding before the action button -->
+      <div class="header-spacer"></div>
 
       <!-- Placed directly in the row to anchor beautifully to the right edge -->
       <button id="add-tab" title="Add New Tab"><span>+</span> Tab</button>
@@ -29,9 +32,9 @@
 
   <!-- Floating Content Action Cluster (Bottom Right) -->
   <div class="floating-actions">
-    <button id="add-goal" title="Add Goal"><span>+</span> Goal</button>
-    <button id="add-task" title="Add Task"><span>+</span> Task</button>
-    <button id="add-note" title="Add Note"><span>+</span> Note</button>
+    <button id="add-goal" title="Add Goal"><span class="btn-dot goal-dot"></span><span>+</span> Goal</button>
+    <button id="add-task" title="Add Task"><span class="btn-dot task-dot"></span><span>+</span> Task</button>
+    <button id="add-note" title="Add Note"><span class="btn-dot note-dot"></span><span>+</span> Note</button>
   </div>
 
   <!-- Floating Trash Dropzone (Far Bottom Right) -->
